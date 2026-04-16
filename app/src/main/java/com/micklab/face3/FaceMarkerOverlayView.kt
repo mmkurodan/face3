@@ -47,19 +47,22 @@ class FaceMarkerOverlayView @JvmOverloads constructor(
     private var trackedPoint: FaceMeshProcessor.Point3? = null
     private var sourceWidth = 1
     private var sourceHeight = 1
+    private var rotationDegrees = 0
 
     fun setMarkers(
         referencePoint: FaceMeshProcessor.Point3,
         trackedPoint: FaceMeshProcessor.Point3,
         sourceWidth: Int,
         sourceHeight: Int,
+        rotationDegrees: Int,
     ) {
         val normalizedWidth = sourceWidth.coerceAtLeast(1)
         val normalizedHeight = sourceHeight.coerceAtLeast(1)
         if (this.referencePoint == referencePoint &&
             this.trackedPoint == trackedPoint &&
             this.sourceWidth == normalizedWidth &&
-            this.sourceHeight == normalizedHeight
+            this.sourceHeight == normalizedHeight &&
+            this.rotationDegrees == normalizeRotation(rotationDegrees)
         ) {
             return
         }
@@ -68,6 +71,7 @@ class FaceMarkerOverlayView @JvmOverloads constructor(
         this.trackedPoint = trackedPoint
         this.sourceWidth = normalizedWidth
         this.sourceHeight = normalizedHeight
+        this.rotationDegrees = normalizeRotation(rotationDegrees)
         postInvalidateOnAnimation()
     }
 
@@ -90,10 +94,12 @@ class FaceMarkerOverlayView @JvmOverloads constructor(
         val reference = referencePoint ?: return
         val tracked = trackedPoint ?: return
         val imageBounds = computeImageBounds()
-        val referenceX = imageBounds.left + ((1f - reference.x.coerceIn(0f, 1f)) * imageBounds.width)
-        val referenceY = imageBounds.top + (reference.y.coerceIn(0f, 1f) * imageBounds.height)
-        val trackedX = imageBounds.left + ((1f - tracked.x.coerceIn(0f, 1f)) * imageBounds.width)
-        val trackedY = imageBounds.top + (tracked.y.coerceIn(0f, 1f) * imageBounds.height)
+        val rotatedReference = transformPoint(reference)
+        val rotatedTracked = transformPoint(tracked)
+        val referenceX = imageBounds.left + ((1f - rotatedReference.x) * imageBounds.width)
+        val referenceY = imageBounds.top + (rotatedReference.y * imageBounds.height)
+        val trackedX = imageBounds.left + ((1f - rotatedTracked.x) * imageBounds.width)
+        val trackedY = imageBounds.top + (rotatedTracked.y * imageBounds.height)
         val referenceRadius = 10f * resources.displayMetrics.density
         val trackedRadius = 12f * resources.displayMetrics.density
         val crossHalfSize = 16f * resources.displayMetrics.density
@@ -135,6 +141,25 @@ class FaceMarkerOverlayView @JvmOverloads constructor(
             height = drawnHeight,
         )
     }
+
+    private fun transformPoint(point: FaceMeshProcessor.Point3): FaceMeshProcessor.Point3 {
+        val x = point.x.coerceIn(0f, 1f)
+        val y = point.y.coerceIn(0f, 1f)
+        val (rotatedX, rotatedY) = when (rotationDegrees) {
+            90 -> 1f - y to x
+            180 -> 1f - x to 1f - y
+            270 -> y to 1f - x
+            else -> x to y
+        }
+        return FaceMeshProcessor.Point3(
+            x = rotatedX,
+            y = rotatedY,
+            z = point.z,
+        )
+    }
+
+    private fun normalizeRotation(rotationDegrees: Int): Int =
+        ((rotationDegrees % 360) + 360) % 360
 
     private data class ImageBounds(
         val left: Float,

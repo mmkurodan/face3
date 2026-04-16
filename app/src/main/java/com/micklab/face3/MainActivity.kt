@@ -121,15 +121,16 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                 horizontalSensitivity = binding.settingsPanel.horizontalSensitivitySlider.value,
                 verticalSensitivity = binding.settingsPanel.verticalSensitivitySlider.value,
             )
-            val trackedEye = trackedEye(frame, estimate)
-            if (trackedEye == null) {
+            val trackedPoint = trackedPoint(frame, estimate)
+            if (trackedPoint == null) {
                 binding.faceMarkerOverlayView.clearMarkers()
             } else {
                 binding.faceMarkerOverlayView.setMarkers(
                     referencePoint = frame.noseTip,
-                    trackedPoint = trackedEye.irisCenter,
+                    trackedPoint = trackedPoint,
                     sourceWidth = frame.displayWidth,
                     sourceHeight = frame.displayHeight,
+                    rotationDegrees = frame.rotationDegrees,
                 )
             }
 
@@ -149,7 +150,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                     y = estimate.offsetY,
                 )
                 updateStatus(
-                    status = getString(R.string.status_tracking, estimate.eyeSide.label),
+                    status = getString(R.string.status_tracking, estimate.trackingMode.label),
                     details = buildDetailsText(frame = frame, estimate = estimate),
                 )
             }
@@ -206,7 +207,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         gazeEstimator.reset()
         binding.cursorOverlayView.centerCursor()
         updateStatus(
-            status = getString(R.string.status_calibrated, snapshot.preferredEye.label),
+            status = getString(R.string.status_calibrated, calibrationTrackingLabel(snapshot)),
             details = buildCalibrationText(snapshot),
         )
     }
@@ -387,19 +388,21 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         frame: FaceMeshProcessor.FaceMeshFrame,
         estimate: GazeEstimator.GazeEstimate?,
     ): String {
-        val eye = trackedEye(frame, estimate)
-        if (eye == null) {
+        val eyes = trackedEyes(frame, estimate)
+        if (eyes.isEmpty()) {
             return getString(R.string.details_waiting)
         }
 
+        val averageWidth = eyes.map { it.eyeWidth }.average().toFloat()
+        val trackingLabel = trackingLabel(frame, estimate)
         val distanceScale = estimate?.distanceScale ?: 1f
         return buildString {
             append(
                 String.format(
                     Locale.US,
-                    "eye=%s  width=%.4f  infer=%dms",
-                    eye.side.label,
-                    eye.eyeWidth,
+                    "track=%s  width=%.4f  infer=%dms",
+                    trackingLabel,
+                    averageWidth,
                     frame.inferenceTimeMs,
                 ),
             )
@@ -419,11 +422,55 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
     private fun trackedEye(
         frame: FaceMeshProcessor.FaceMeshFrame,
         estimate: GazeEstimator.GazeEstimate?,
-    ): FaceMeshProcessor.EyeMetrics? {
-        return when (estimate?.eyeSide) {
-            FaceMeshProcessor.EyeSide.RIGHT -> frame.rightEye
-            FaceMeshProcessor.EyeSide.LEFT -> frame.leftEye
-            null -> frame.preferredEye()
+    ): FaceMeshProcessor.EyeMetrics? = trackedEyes(frame, estimate).firstOrNull()
+
+    private fun trackedEyes(
+        frame: FaceMeshProcessor.FaceMeshFrame,
+        estimate: GazeEstimator.GazeEstimate?,
+    ): List<FaceMeshProcessor.EyeMetrics> {
+        return when (estimate?.trackingMode) {
+            GazeEstimator.TrackingMode.BOTH -> frame.visibleEyes()
+            GazeEstimator.TrackingMode.RIGHT -> listOfNotNull(frame.eyeFor(FaceMeshProcessor.EyeSide.RIGHT))
+            GazeEstimator.TrackingMode.LEFT -> listOfNotNull(frame.eyeFor(FaceMeshProcessor.EyeSide.LEFT))
+            null -> frame.visibleEyes()
+        }
+    }
+
+    private fun trackedPoint(
+        frame: FaceMeshProcessor.FaceMeshFrame,
+        estimate: GazeEstimator.GazeEstimate?,
+    ): FaceMeshProcessor.Point3? {
+        val eyes = trackedEyes(frame, estimate)
+        if (eyes.isEmpty()) {
+            return null
+        }
+
+        val meanX = eyes.sumOf { it.irisCenter.x.toDouble() } / eyes.size
+        val meanY = eyes.sumOf { it.irisCenter.y.toDouble() } / eyes.size
+        val meanZ = eyes.sumOf { it.irisCenter.z.toDouble() } / eyes.size
+        return FaceMeshProcessor.Point3(
+            x = meanX.toFloat(),
+            y = meanY.toFloat(),
+            z = meanZ.toFloat(),
+        )
+    }
+
+    private fun trackingLabel(
+        frame: FaceMeshProcessor.FaceMeshFrame,
+        estimate: GazeEstimator.GazeEstimate?,
+    ): String {
+        return estimate?.trackingMode?.label ?: when (trackedEyes(frame, estimate).size) {
+            0 -> getString(R.string.tracking_mode_waiting)
+            1 -> trackedEye(frame, estimate)?.side?.label ?: getString(R.string.tracking_mode_waiting)
+            else -> getString(R.string.tracking_mode_both)
+        }
+    }
+
+    private fun calibrationTrackingLabel(snapshot: CalibrationManager.CalibrationState): String {
+        return if (snapshot.eyes.size >= 2) {
+            getString(R.string.tracking_mode_both)
+        } else {
+            snapshot.preferredEye.label
         }
     }
 }

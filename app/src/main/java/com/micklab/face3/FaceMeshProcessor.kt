@@ -30,6 +30,7 @@ class FaceMeshProcessor(
     private var lastSubmittedAtMs = 0L
     private var lastFrameDisplayWidth = 1
     private var lastFrameDisplayHeight = 1
+    private var lastFrameRotationDegrees = 0
 
     init {
         val options = FaceLandmarker.FaceLandmarkerOptions.builder()
@@ -82,6 +83,7 @@ class FaceMeshProcessor(
 
             lastFrameDisplayWidth = if (isQuarterTurn) frameHeight else frameWidth
             lastFrameDisplayHeight = if (isQuarterTurn) frameWidth else frameHeight
+            lastFrameRotationDegrees = rotationDegrees
             lastSubmittedAtMs = frameTime
             faceLandmarker.detectAsync(mpImage, imageProcessingOptions, frameTime)
         } catch (t: Throwable) {
@@ -176,6 +178,7 @@ class FaceMeshProcessor(
             inferenceTimeMs = inferenceTimeMs,
             displayWidth = lastFrameDisplayWidth,
             displayHeight = lastFrameDisplayHeight,
+            rotationDegrees = lastFrameRotationDegrees,
         )
     }
 
@@ -286,8 +289,17 @@ class FaceMeshProcessor(
         val inferenceTimeMs: Long,
         val displayWidth: Int,
         val displayHeight: Int,
+        val rotationDegrees: Int,
     ) {
         fun preferredEye(): EyeMetrics? = rightEye ?: leftEye
+
+        fun eyeFor(side: EyeSide): EyeMetrics? =
+            when (side) {
+                EyeSide.RIGHT -> rightEye
+                EyeSide.LEFT -> leftEye
+            }
+
+        fun visibleEyes(): List<EyeMetrics> = listOfNotNull(rightEye, leftEye)
     }
 
     enum class EyeSide(

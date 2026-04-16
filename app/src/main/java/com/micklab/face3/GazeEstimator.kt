@@ -18,22 +18,36 @@ class GazeEstimator {
         horizontalSensitivity: Float,
         verticalSensitivity: Float,
     ): GazeEstimate? {
-        val eye = frame.preferredEye() ?: return null
-        val correction = calibrationManager.correctionFor(frame, eye) ?: return null
+        val samples = frame.visibleEyes().mapNotNull { eye ->
+            val correction = calibrationManager.correctionFor(frame, eye) ?: return@mapNotNull null
+            EyeSample(eye = eye, correction = correction)
+        }
+        if (samples.isEmpty()) {
+            return null
+        }
 
-        val irisDeltaX = eye.irisOffsetX - correction.baseline.irisOffsetX
-        val irisDeltaY = eye.irisOffsetY - correction.baseline.irisOffsetY
-
-        val correctedX = (
-            irisDeltaX -
-                (correction.noseDeltaX * NOSE_COMPENSATION_X) -
-                (correction.yawDelta * YAW_COMPENSATION_X)
-            ) * correction.distanceScale
-        val correctedY = (
-            irisDeltaY -
-                (correction.noseDeltaY * NOSE_COMPENSATION_Y) -
-                (correction.pitchDelta * PITCH_COMPENSATION_Y)
-            ) * correction.distanceScale
+        val correctedX = samples
+            .map { sample ->
+                val irisDeltaX = sample.eye.irisOffsetX - sample.correction.baseline.irisOffsetX
+                (
+                    irisDeltaX -
+                        (sample.correction.noseDeltaX * NOSE_COMPENSATION_X) -
+                        (sample.correction.yawDelta * YAW_COMPENSATION_X)
+                    ) * sample.correction.distanceScale
+            }
+            .average()
+            .toFloat()
+        val correctedY = samples
+            .map { sample ->
+                val irisDeltaY = sample.eye.irisOffsetY - sample.correction.baseline.irisOffsetY
+                (
+                    irisDeltaY -
+                        (sample.correction.noseDeltaY * NOSE_COMPENSATION_Y) -
+                        (sample.correction.pitchDelta * PITCH_COMPENSATION_Y)
+                    ) * sample.correction.distanceScale
+            }
+            .average()
+            .toFloat()
 
         val targetX = (correctedX * horizontalSensitivity * HORIZONTAL_GAIN).coerceIn(-1f, 1f)
         val targetY = (correctedY * verticalSensitivity * VERTICAL_GAIN).coerceIn(-1f, 1f)
@@ -48,23 +62,44 @@ class GazeEstimator {
         }
 
         return GazeEstimate(
-            eyeSide = eye.side,
+            trackingMode = trackingModeFor(samples),
             offsetX = smoothedX,
             offsetY = smoothedY,
-            distanceScale = correction.distanceScale,
-            poseYawDelta = correction.yawDelta,
-            posePitchDelta = correction.pitchDelta,
+            distanceScale = samples.map { it.correction.distanceScale }.average().toFloat(),
+            poseYawDelta = samples.map { it.correction.yawDelta }.average().toFloat(),
+            posePitchDelta = samples.map { it.correction.pitchDelta }.average().toFloat(),
         )
     }
 
     data class GazeEstimate(
-        val eyeSide: FaceMeshProcessor.EyeSide,
+        val trackingMode: TrackingMode,
         val offsetX: Float,
         val offsetY: Float,
         val distanceScale: Float,
         val poseYawDelta: Float,
         val posePitchDelta: Float,
     )
+
+    enum class TrackingMode(
+        val label: String,
+    ) {
+        BOTH("両目平均"),
+        RIGHT("右目"),
+        LEFT("左目"),
+    }
+
+    private data class EyeSample(
+        val eye: FaceMeshProcessor.EyeMetrics,
+        val correction: CalibrationManager.Correction,
+    )
+
+    private fun trackingModeFor(samples: List<EyeSample>): TrackingMode {
+        return when {
+            samples.size >= 2 -> TrackingMode.BOTH
+            samples.first().eye.side == FaceMeshProcessor.EyeSide.RIGHT -> TrackingMode.RIGHT
+            else -> TrackingMode.LEFT
+        }
+    }
 
     private companion object {
         private const val HORIZONTAL_GAIN = 5.0f
