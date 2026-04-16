@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gaze Cursor</string>
+    <string name="status_initializing">カメラを初期化しています...</string>
+    <string name="status_permission_required">カメラ権限が必要です</string>
+    <string name="status_camera_ready">視線追従の準備ができました</string>
+    <string name="status_no_face">顔が見つかりません</string>
+    <string name="status_calibration_required">正面を見てキャリブレーションしてください</string>
+    <string name="status_calibration_face_needed">顔が映った状態でキャリブレーションを開始してください</string>
+    <string name="status_calibrated">%1$s を基準にキャリブレーションしました</string>
+    <string name="status_tracking">%1$s の瞳でカーソルを追従中</string>
+    <string name="status_error">エラー: %1$s</string>
+    <string name="grant_camera_permission">カメラ権限を許可</string>
+    <string name="open_app_settings">アプリ設定を開く</string>
+    <string name="calibration_button">キャリブレーション開始</string>
+    <string name="horizontal_sensitivity_label">横方向感度</string>
+    <string name="vertical_sensitivity_label">縦方向感度</string>
+    <string name="sensitivity_value">%1$.1fx</string>
+    <string name="details_waiting">右目を優先し、見えない場合は左目の瞳で追従します。</string>
+    <string name="details_permission_help">カメラ権限を許可すると、CameraX プレビューと FaceMesh による視線推定を開始します。</string>
+    <string name="details_calibration_help">正面を見た状態でキャリブレーションすると、目幅・鼻先との相対位置・顔角度・距離基準を保存します。</string>
+    <string name="details_keep_pose">顔の向きと距離の補正を安定させるため、キャリブレーション時の姿勢に近い状態から始めてください。</string>
+</resources>

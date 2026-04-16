@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="panel_text_primary">#FFF9FAFB</color>
+    <color name="panel_text_secondary">#FFD1D5DB</color>
+    <color name="cursor_anchor">#66E5E7EB</color>
+    <color name="cursor_fill">#FF38BDF8</color>
+    <color name="cursor_outline">#FF0F172A</color>
+</resources>
