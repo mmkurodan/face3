@@ -64,12 +64,17 @@ class CursorOverlayView @JvmOverloads constructor(
 
         val centerX = width / 2f
         val centerY = height / 2f
+        val edgePadding = 8f * resources.displayMetrics.density
         val anchorRadius = 10f * resources.displayMetrics.density
         val cursorRadius = 14f * resources.displayMetrics.density
-        val maxTravelX = width * 0.32f
-        val maxTravelY = height * 0.24f
-        val cursorX = centerX + (normalizedX * maxTravelX)
-        val cursorY = centerY + (normalizedY * maxTravelY)
+        val minCursorX = cursorRadius + edgePadding
+        val maxCursorX = width - cursorRadius - edgePadding
+        val minCursorY = cursorRadius + edgePadding
+        val maxCursorY = height - cursorRadius - edgePadding
+        val maxTravelX = (centerX - minCursorX).coerceAtLeast(0f)
+        val maxTravelY = (centerY - minCursorY).coerceAtLeast(0f)
+        val cursorX = (centerX + (normalizedX * maxTravelX)).coerceIn(minCursorX, maxCursorX)
+        val cursorY = (centerY + (normalizedY * maxTravelY)).coerceIn(minCursorY, maxCursorY)
 
         canvas.drawCircle(centerX, centerY, anchorRadius, anchorPaint)
         canvas.drawCircle(centerX, centerY, 3f * resources.displayMetrics.density, anchorDotPaint)

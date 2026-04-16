@@ -121,6 +121,17 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                 horizontalSensitivity = binding.settingsPanel.horizontalSensitivitySlider.value,
                 verticalSensitivity = binding.settingsPanel.verticalSensitivitySlider.value,
             )
+            val trackedEye = trackedEye(frame, estimate)
+            if (trackedEye == null) {
+                binding.faceMarkerOverlayView.clearMarkers()
+            } else {
+                binding.faceMarkerOverlayView.setMarkers(
+                    referencePoint = frame.noseTip,
+                    trackedPoint = trackedEye.irisCenter,
+                    sourceWidth = frame.displayWidth,
+                    sourceHeight = frame.displayHeight,
+                )
+            }
 
             if (estimate == null) {
                 binding.cursorOverlayView.centerCursor()
@@ -148,6 +159,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
     override fun onNoFaceDetected() {
         runOnUiThread {
             latestFrame = null
+            binding.faceMarkerOverlayView.clearMarkers()
             binding.cursorOverlayView.centerCursor()
             updateStatus(
                 status = getString(R.string.status_no_face),
@@ -162,6 +174,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
 
     override fun onError(message: String) {
         runOnUiThread {
+            binding.faceMarkerOverlayView.clearMarkers()
             binding.cursorOverlayView.centerCursor()
             updateStatus(
                 status = getString(R.string.status_error, message),
@@ -294,6 +307,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         cameraProvider = null
         latestFrame = null
         gazeEstimator.reset()
+        binding.faceMarkerOverlayView.clearMarkers()
         binding.cursorOverlayView.centerCursor()
         binding.permissionButton.visibility = android.view.View.VISIBLE
         binding.permissionButton.text = getString(
@@ -373,7 +387,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         frame: FaceMeshProcessor.FaceMeshFrame,
         estimate: GazeEstimator.GazeEstimate?,
     ): String {
-        val eye = frame.preferredEye()
+        val eye = trackedEye(frame, estimate)
         if (eye == null) {
             return getString(R.string.details_waiting)
         }
@@ -399,6 +413,17 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                     distanceScale,
                 ),
             )
+        }
+    }
+
+    private fun trackedEye(
+        frame: FaceMeshProcessor.FaceMeshFrame,
+        estimate: GazeEstimator.GazeEstimate?,
+    ): FaceMeshProcessor.EyeMetrics? {
+        return when (estimate?.eyeSide) {
+            FaceMeshProcessor.EyeSide.RIGHT -> frame.rightEye
+            FaceMeshProcessor.EyeSide.LEFT -> frame.leftEye
+            null -> frame.preferredEye()
         }
     }
 }
