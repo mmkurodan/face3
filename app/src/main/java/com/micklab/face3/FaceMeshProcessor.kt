@@ -403,8 +403,8 @@ class FaceMeshProcessor(
         private const val MIN_FRAME_INTERVAL_MS = 33L
         private const val EPSILON = 1.0e-6f
         private const val NOSE_TIP_INDEX = 1
-        private const val BLINK_THRESHOLD = 0.26f
-        private const val BLINK_DURATION_MS = 150L
+        private const val BLINK_THRESHOLD = 0.2f
+        private const val BLINK_DURATION_MS = 100L
 
         private const val RIGHT_OUTER_CORNER = 33
         private const val RIGHT_INNER_CORNER = 133

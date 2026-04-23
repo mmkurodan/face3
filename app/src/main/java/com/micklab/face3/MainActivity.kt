@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
     private var imageAnalysis: ImageAnalysis? = null
     private var hasRequestedPermission = false
     private var isBlinkCalibrationActive = false
+    private var blinkStartTimeMs = 0L
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -97,6 +98,10 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
             updateSensitivityLabels()
         }
         updateSensitivityLabels()
+
+        binding.toggleSettingsButton.setOnClickListener {
+            toggleSettingsPanel()
+        }
 
         if (hasCameraPermission()) {
             showCameraUi()
@@ -209,6 +214,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
 
     override fun onBlinkDetected() {
         runOnUiThread {
+            blinkStartTimeMs = System.currentTimeMillis()
             isBlinkCalibrationActive = true
             binding.cursorOverlayView.lockCursor()
             updateStatus(
@@ -220,10 +226,15 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
 
     override fun onBlinkReleased() {
         runOnUiThread {
+            val blinkDurationMs = System.currentTimeMillis() - blinkStartTimeMs
+            if (blinkDurationMs >= 500L) {
+                binding.cursorOverlayView.toggleCursorColor()
+            }
             if (isBlinkCalibrationActive) {
                 isBlinkCalibrationActive = false
                 calibrateFromLatestFrame()
             }
+            blinkStartTimeMs = 0L
         }
     }
 
@@ -528,6 +539,28 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
             getString(R.string.tracking_mode_both)
         } else {
             snapshot.preferredEye.label
+        }
+    }
+
+    private fun toggleSettingsPanel() {
+        val settingsPanel = binding.settingsPanel.root
+        val isVisible = settingsPanel.visibility == android.view.View.VISIBLE
+
+        if (isVisible) {
+            settingsPanel.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction {
+                    settingsPanel.visibility = android.view.View.GONE
+                }
+                .start()
+        } else {
+            settingsPanel.alpha = 0f
+            settingsPanel.visibility = android.view.View.VISIBLE
+            settingsPanel.animate()
+                .alpha(1f)
+                .setDuration(300)
+                .start()
         }
     }
 }

@@ -1392,7 +1392,9 @@ color cardview_shadow_end_color
 color cardview_shadow_start_color
 color cursor_anchor
 color cursor_fill
+color cursor_fill_alt
 color cursor_outline
+color cursor_text
 color design_bottom_navigation_shadow_color
 color design_box_stroke_color
 color design_dark_default_color_background
@@ -3607,6 +3609,7 @@ id title
 id titleDividerNoCustom
 id title_template
 id toggle
+id toggleSettingsButton
 id top
 id topPanel
 id touch_outside

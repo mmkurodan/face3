@@ -37,17 +37,21 @@ public final class ActivityMainBinding implements ViewBinding {
   @NonNull
   public final SettingsBinding settingsPanel;
 
+  @NonNull
+  public final MaterialButton toggleSettingsButton;
+
   private ActivityMainBinding(@NonNull ConstraintLayout rootView,
       @NonNull CursorOverlayView cursorOverlayView,
       @NonNull FaceMarkerOverlayView faceMarkerOverlayView,
       @NonNull MaterialButton permissionButton, @NonNull PreviewView previewView,
-      @NonNull SettingsBinding settingsPanel) {
+      @NonNull SettingsBinding settingsPanel, @NonNull MaterialButton toggleSettingsButton) {
     this.rootView = rootView;
     this.cursorOverlayView = cursorOverlayView;
     this.faceMarkerOverlayView = faceMarkerOverlayView;
     this.permissionButton = permissionButton;
     this.previewView = previewView;
     this.settingsPanel = settingsPanel;
+    this.toggleSettingsButton = toggleSettingsButton;
   }
 
   @Override
@@ -108,8 +112,15 @@ public final class ActivityMainBinding implements ViewBinding {
       }
       SettingsBinding binding_settingsPanel = SettingsBinding.bind(settingsPanel);
 
+      id = R.id.toggleSettingsButton;
+      MaterialButton toggleSettingsButton = ViewBindings.findChildViewById(rootView, id);
+      if (toggleSettingsButton == null) {
+        break missingId;
+      }
+
       return new ActivityMainBinding((ConstraintLayout) rootView, cursorOverlayView,
-          faceMarkerOverlayView, permissionButton, previewView, binding_settingsPanel);
+          faceMarkerOverlayView, permissionButton, previewView, binding_settingsPanel,
+          toggleSettingsButton);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

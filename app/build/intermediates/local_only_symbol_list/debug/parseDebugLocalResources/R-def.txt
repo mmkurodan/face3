@@ -2,7 +2,9 @@ R_DEF: Internal format may change without notice
 local
 color cursor_anchor
 color cursor_fill
+color cursor_fill_alt
 color cursor_outline
+color cursor_text
 color face_marker_guide
 color face_reference_marker
 color face_tracked_marker
@@ -28,6 +30,7 @@ id permissionButton
 id previewView
 id settingsPanel
 id statusTextView
+id toggleSettingsButton
 id verticalLabelTextView
 id verticalSensitivitySlider
 id verticalValueTextView

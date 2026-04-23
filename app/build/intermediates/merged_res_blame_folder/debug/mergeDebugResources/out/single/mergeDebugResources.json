@@ -4,11 +4,7 @@
         "source": "com.micklab.face3.app-main-45:/layout/settings.xml"
     },
     {
-        "merged": "/root/.gradle/daemon/8.7/com.micklab.face3.app-debug-43:/layout_activity_main.xml.flat",
-        "source": "/root/.gradle/daemon/8.7/com.micklab.face3.app-main-45:/layout/activity_main.xml"
-    },
-    {
-        "merged": "/root/.gradle/daemon/8.7/com.micklab.face3.app-debug-43:/layout_settings.xml.flat",
-        "source": "/root/.gradle/daemon/8.7/com.micklab.face3.app-main-45:/layout/settings.xml"
+        "merged": "com.micklab.face3.app-debug-43:/layout_activity_main.xml.flat",
+        "source": "com.micklab.face3.app-main-45:/layout/activity_main.xml"
     }
 ]

@@ -39,7 +39,7 @@ class CursorOverlayView @JvmOverloads constructor(
     }
 
     private val cursorTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = ContextCompat.getColor(context, R.color.cursor_fill)
+        color = ContextCompat.getColor(context, R.color.cursor_text)
         textSize = 10f * resources.displayMetrics.density
         textAlign = Paint.Align.CENTER
     }
@@ -52,6 +52,7 @@ class CursorOverlayView @JvmOverloads constructor(
     private var isCursorActive = false
     private var targetNormalizedX = 0f
     private var targetNormalizedY = 0f
+    private var isCursorColorToggled = false
 
     fun setCursorMovementThresholdX(ratio: Float) {
         cursorMovementThresholdRatioX = ratio.coerceIn(0.005f, 0.05f)
@@ -71,6 +72,16 @@ class CursorOverlayView @JvmOverloads constructor(
 
     fun unlockCursor() {
         // Cursor unlock functionality
+    }
+
+    fun toggleCursorColor() {
+        isCursorColorToggled = !isCursorColorToggled
+        postInvalidateOnAnimation()
+    }
+
+    fun resetCursorColor() {
+        isCursorColorToggled = false
+        postInvalidateOnAnimation()
     }
 
     fun setCursorOffsetNormalized(
@@ -137,7 +148,18 @@ class CursorOverlayView @JvmOverloads constructor(
 
         canvas.drawCircle(centerX, centerY, anchorRadius, anchorPaint)
         canvas.drawCircle(centerX, centerY, 3f * resources.displayMetrics.density, anchorDotPaint)
-        canvas.drawCircle(cursorX, cursorY, cursorRadius, cursorPaint)
+
+        val activeCursorPaint = if (isCursorColorToggled) {
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = ContextCompat.getColor(context, R.color.cursor_fill_alt)
+                style = Paint.Style.FILL
+                alpha = 220
+            }
+        } else {
+            cursorPaint
+        }
+
+        canvas.drawCircle(cursorX, cursorY, cursorRadius, activeCursorPaint)
         canvas.drawCircle(cursorX, cursorY, cursorRadius, cursorOutlinePaint)
 
         val positionText = String.format("%.2f\n%.2f", normalizedX, normalizedY)

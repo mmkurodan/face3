@@ -47,6 +47,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/previewView" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/toggleSettingsButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚙"
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:insetBottom="0dp"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:insetTop="0dp"
+        app:layout_constraintBottom_toTopOf="@id/settingsPanel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        android:layout_margin="12dp" />
+
     <include
         android:id="@+id/settingsPanel"
         layout="@layout/settings"

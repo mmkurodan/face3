@@ -5,6 +5,8 @@
     <color name="cursor_anchor">#66E5E7EB</color>
     <color name="cursor_fill">#FF38BDF8</color>
     <color name="cursor_outline">#FF0F172A</color>
+    <color name="cursor_fill_alt">#FFFF6B35</color>
+    <color name="cursor_text">#FFFFFF</color>
     <color name="face_reference_marker">#FFF97316</color>
     <color name="face_tracked_marker">#FF22C55E</color>
     <color name="face_marker_guide">#B3F8FAFC</color>
