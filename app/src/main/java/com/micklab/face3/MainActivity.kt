@@ -84,7 +84,15 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
             updateSensitivityLabels()
         }
         binding.settingsPanel.cursorThresholdSlider.addOnChangeListener { _, value, _ ->
-            binding.cursorOverlayView.setCursorMovementThreshold(value)
+            binding.cursorOverlayView.setCursorMovementThresholdX(value)
+            updateSensitivityLabels()
+        }
+        binding.settingsPanel.cursorThresholdYSlider.addOnChangeListener { _, value, _ ->
+            binding.cursorOverlayView.setCursorMovementThresholdY(value)
+            updateSensitivityLabels()
+        }
+        binding.settingsPanel.cursorSpeedSlider.addOnChangeListener { _, value, _ ->
+            binding.cursorOverlayView.setCursorMovementSpeed(value)
             updateSensitivityLabels()
         }
         updateSensitivityLabels()
@@ -149,11 +157,19 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                     details = buildDetailsText(frame = frame, estimate = null),
                 )
             } else {
-                binding.cursorOverlayView.setCursorOffsetNormalized(
-                    x = estimate.offsetX,
-                    y = estimate.offsetY,
-                    calibrationDistance = estimate.calibrationDistance,
-                )
+                val currentIrisCenter = trackedPoint(frame, estimate)
+                if (currentIrisCenter != null) {
+                    val distX = calibrationManager.computeXDistanceFromCalibration(currentIrisCenter)
+                    val distY = calibrationManager.computeYDistanceFromCalibration(currentIrisCenter)
+                    binding.cursorOverlayView.setCursorOffsetNormalized(
+                        x = estimate.offsetX,
+                        y = estimate.offsetY,
+                        calibrationDistanceX = distX,
+                        calibrationDistanceY = distY,
+                    )
+                } else {
+                    binding.cursorOverlayView.centerCursor()
+                }
                 updateStatus(
                     status = getString(R.string.status_tracking, estimate.trackingMode.label),
                     details = buildDetailsText(frame = frame, estimate = estimate),
@@ -357,8 +373,18 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         )
         binding.settingsPanel.cursorThresholdValueTextView.text = String.format(
             Locale.US,
-            "%.2f",
+            "%.3f",
             binding.settingsPanel.cursorThresholdSlider.value,
+        )
+        binding.settingsPanel.cursorThresholdYValueTextView.text = String.format(
+            Locale.US,
+            "%.3f",
+            binding.settingsPanel.cursorThresholdYSlider.value,
+        )
+        binding.settingsPanel.cursorSpeedValueTextView.text = String.format(
+            Locale.US,
+            "%.1f",
+            binding.settingsPanel.cursorSpeedSlider.value,
         )
     }
 

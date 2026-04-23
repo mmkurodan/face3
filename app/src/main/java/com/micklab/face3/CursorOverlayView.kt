@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import kotlin.math.abs
+import kotlin.math.sqrt
 
 class CursorOverlayView @JvmOverloads constructor(
     context: Context,
@@ -39,26 +40,59 @@ class CursorOverlayView @JvmOverloads constructor(
 
     private var normalizedX = 0f
     private var normalizedY = 0f
-    private var cursorMovementThresholdRatio = 0.15f
+    private var cursorMovementThresholdRatioX = 0.015f
+    private var cursorMovementThresholdRatioY = 0.015f
+    private var cursorMovementSpeed = 3f
     private var isCursorActive = false
+    private var targetNormalizedX = 0f
+    private var targetNormalizedY = 0f
 
-    fun setCursorMovementThreshold(ratio: Float) {
-        cursorMovementThresholdRatio = ratio.coerceIn(0.05f, 0.5f)
+    fun setCursorMovementThresholdX(ratio: Float) {
+        cursorMovementThresholdRatioX = ratio.coerceIn(0.005f, 0.05f)
     }
 
-    fun setCursorOffsetNormalized(x: Float, y: Float, calibrationDistance: Float = 0f) {
+    fun setCursorMovementThresholdY(ratio: Float) {
+        cursorMovementThresholdRatioY = ratio.coerceIn(0.005f, 0.05f)
+    }
+
+    fun setCursorMovementSpeed(speed: Float) {
+        cursorMovementSpeed = speed.coerceAtLeast(0.5f)
+    }
+
+    fun setCursorOffsetNormalized(
+        x: Float,
+        y: Float,
+        calibrationDistanceX: Float = 0f,
+        calibrationDistanceY: Float = 0f,
+    ) {
         val clampedX = x.coerceIn(-1f, 1f)
         val clampedY = y.coerceIn(-1f, 1f)
 
         val wasActive = isCursorActive
-        isCursorActive = calibrationDistance > cursorMovementThresholdRatio
+        isCursorActive = calibrationDistanceX > cursorMovementThresholdRatioX ||
+            calibrationDistanceY > cursorMovementThresholdRatioY
 
-        if (isCursorActive && (abs(clampedX - normalizedX) >= 0.001f || abs(clampedY - normalizedY) >= 0.001f)) {
-            normalizedX = clampedX
-            normalizedY = clampedY
-            postInvalidateOnAnimation()
+        if (isCursorActive) {
+            targetNormalizedX = clampedX
+            targetNormalizedY = clampedY
+
+            val deltaX = targetNormalizedX - normalizedX
+            val deltaY = targetNormalizedY - normalizedY
+
+            if (abs(deltaX) >= 0.001f || abs(deltaY) >= 0.001f) {
+                val distance = kotlin.math.sqrt((deltaX * deltaX) + (deltaY * deltaY))
+                if (distance > 0f) {
+                    val speed = cursorMovementSpeed * 0.01f
+                    val stepSize = speed.coerceAtMost(distance)
+                    normalizedX += (deltaX / distance) * stepSize
+                    normalizedY += (deltaY / distance) * stepSize
+
+                    normalizedX = normalizedX.coerceIn(-1f, 1f)
+                    normalizedY = normalizedY.coerceIn(-1f, 1f)
+                    postInvalidateOnAnimation()
+                }
+            }
         } else if (!isCursorActive && wasActive) {
-            // Cursor stopped
             postInvalidateOnAnimation()
         }
     }

@@ -25,6 +25,15 @@ public final class SettingsBinding implements ViewBinding {
   public final MaterialButton calibrationButton;
 
   @NonNull
+  public final TextView cursorSpeedLabelTextView;
+
+  @NonNull
+  public final Slider cursorSpeedSlider;
+
+  @NonNull
+  public final TextView cursorSpeedValueTextView;
+
+  @NonNull
   public final TextView cursorThresholdLabelTextView;
 
   @NonNull
@@ -32,6 +41,15 @@ public final class SettingsBinding implements ViewBinding {
 
   @NonNull
   public final TextView cursorThresholdValueTextView;
+
+  @NonNull
+  public final TextView cursorThresholdYLabelTextView;
+
+  @NonNull
+  public final Slider cursorThresholdYSlider;
+
+  @NonNull
+  public final TextView cursorThresholdYValueTextView;
 
   @NonNull
   public final TextView detailsTextView;
@@ -58,17 +76,27 @@ public final class SettingsBinding implements ViewBinding {
   public final TextView verticalValueTextView;
 
   private SettingsBinding(@NonNull MaterialCardView rootView,
-      @NonNull MaterialButton calibrationButton, @NonNull TextView cursorThresholdLabelTextView,
-      @NonNull Slider cursorThresholdSlider, @NonNull TextView cursorThresholdValueTextView,
-      @NonNull TextView detailsTextView, @NonNull TextView horizontalLabelTextView,
-      @NonNull Slider horizontalSensitivitySlider, @NonNull TextView horizontalValueTextView,
-      @NonNull TextView statusTextView, @NonNull TextView verticalLabelTextView,
-      @NonNull Slider verticalSensitivitySlider, @NonNull TextView verticalValueTextView) {
+      @NonNull MaterialButton calibrationButton, @NonNull TextView cursorSpeedLabelTextView,
+      @NonNull Slider cursorSpeedSlider, @NonNull TextView cursorSpeedValueTextView,
+      @NonNull TextView cursorThresholdLabelTextView, @NonNull Slider cursorThresholdSlider,
+      @NonNull TextView cursorThresholdValueTextView,
+      @NonNull TextView cursorThresholdYLabelTextView, @NonNull Slider cursorThresholdYSlider,
+      @NonNull TextView cursorThresholdYValueTextView, @NonNull TextView detailsTextView,
+      @NonNull TextView horizontalLabelTextView, @NonNull Slider horizontalSensitivitySlider,
+      @NonNull TextView horizontalValueTextView, @NonNull TextView statusTextView,
+      @NonNull TextView verticalLabelTextView, @NonNull Slider verticalSensitivitySlider,
+      @NonNull TextView verticalValueTextView) {
     this.rootView = rootView;
     this.calibrationButton = calibrationButton;
+    this.cursorSpeedLabelTextView = cursorSpeedLabelTextView;
+    this.cursorSpeedSlider = cursorSpeedSlider;
+    this.cursorSpeedValueTextView = cursorSpeedValueTextView;
     this.cursorThresholdLabelTextView = cursorThresholdLabelTextView;
     this.cursorThresholdSlider = cursorThresholdSlider;
     this.cursorThresholdValueTextView = cursorThresholdValueTextView;
+    this.cursorThresholdYLabelTextView = cursorThresholdYLabelTextView;
+    this.cursorThresholdYSlider = cursorThresholdYSlider;
+    this.cursorThresholdYValueTextView = cursorThresholdYValueTextView;
     this.detailsTextView = detailsTextView;
     this.horizontalLabelTextView = horizontalLabelTextView;
     this.horizontalSensitivitySlider = horizontalSensitivitySlider;
@@ -112,6 +140,24 @@ public final class SettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.cursorSpeedLabelTextView;
+      TextView cursorSpeedLabelTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorSpeedLabelTextView == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorSpeedSlider;
+      Slider cursorSpeedSlider = ViewBindings.findChildViewById(rootView, id);
+      if (cursorSpeedSlider == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorSpeedValueTextView;
+      TextView cursorSpeedValueTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorSpeedValueTextView == null) {
+        break missingId;
+      }
+
       id = R.id.cursorThresholdLabelTextView;
       TextView cursorThresholdLabelTextView = ViewBindings.findChildViewById(rootView, id);
       if (cursorThresholdLabelTextView == null) {
@@ -127,6 +173,24 @@ public final class SettingsBinding implements ViewBinding {
       id = R.id.cursorThresholdValueTextView;
       TextView cursorThresholdValueTextView = ViewBindings.findChildViewById(rootView, id);
       if (cursorThresholdValueTextView == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdYLabelTextView;
+      TextView cursorThresholdYLabelTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdYLabelTextView == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdYSlider;
+      Slider cursorThresholdYSlider = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdYSlider == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdYValueTextView;
+      TextView cursorThresholdYValueTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdYValueTextView == null) {
         break missingId;
       }
 
@@ -179,7 +243,9 @@ public final class SettingsBinding implements ViewBinding {
       }
 
       return new SettingsBinding((MaterialCardView) rootView, calibrationButton,
+          cursorSpeedLabelTextView, cursorSpeedSlider, cursorSpeedValueTextView,
           cursorThresholdLabelTextView, cursorThresholdSlider, cursorThresholdValueTextView,
+          cursorThresholdYLabelTextView, cursorThresholdYSlider, cursorThresholdYValueTextView,
           detailsTextView, horizontalLabelTextView, horizontalSensitivitySlider,
           horizontalValueTextView, statusTextView, verticalLabelTextView, verticalSensitivitySlider,
           verticalValueTextView);

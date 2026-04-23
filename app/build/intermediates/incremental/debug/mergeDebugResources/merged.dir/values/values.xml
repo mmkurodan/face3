@@ -2017,7 +2017,9 @@
     <string name="character_counter_overflowed_content_description">Character limit exceeded %1$d of %2$d</string>
     <string name="character_counter_pattern" translatable="false">%1$d/%2$d</string>
     <string name="clear_text_end_icon_content_description">Clear text</string>
-    <string name="cursor_threshold_label">カーソル動き出す比率</string>
+    <string name="cursor_speed_label">カーソル移動速度</string>
+    <string name="cursor_threshold_label">カーソル動き出す比率（横）</string>
+    <string name="cursor_threshold_y_label">カーソル動き出す比率（縦）</string>
     <string name="details_calibration_help">正面を見た状態でキャリブレーションすると、目幅・鼻先との相対位置・顔角度・距離基準を保存します。</string>
     <string name="details_keep_pose">顔の向きと距離の補正を安定させるため、キャリブレーション時の姿勢に近い状態から始めてください。</string>
     <string name="details_permission_help">カメラ権限を許可すると、CameraX プレビューと FaceMesh による視線推定を開始します。</string>

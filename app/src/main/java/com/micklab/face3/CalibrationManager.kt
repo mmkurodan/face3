@@ -59,6 +59,24 @@ class CalibrationManager {
         return delta.magnitude3D()
     }
 
+    fun computeXDistanceFromCalibration(
+        currentIrisCenter: FaceMeshProcessor.Point3,
+    ): Float {
+        val snapshot = calibrationState ?: return 0f
+        return (currentIrisCenter.x - snapshot.calibrationIrisCenter.x).let {
+            if (it < 0) -it else it
+        }
+    }
+
+    fun computeYDistanceFromCalibration(
+        currentIrisCenter: FaceMeshProcessor.Point3,
+    ): Float {
+        val snapshot = calibrationState ?: return 0f
+        return (currentIrisCenter.y - snapshot.calibrationIrisCenter.y).let {
+            if (it < 0) -it else it
+        }
+    }
+
     fun getCalibrationIrisCenter(): FaceMeshProcessor.Point3? {
         return calibrationState?.calibrationIrisCenter
     }
