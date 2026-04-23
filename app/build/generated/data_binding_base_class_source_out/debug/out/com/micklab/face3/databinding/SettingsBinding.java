@@ -25,6 +25,15 @@ public final class SettingsBinding implements ViewBinding {
   public final MaterialButton calibrationButton;
 
   @NonNull
+  public final TextView cursorThresholdLabelTextView;
+
+  @NonNull
+  public final Slider cursorThresholdSlider;
+
+  @NonNull
+  public final TextView cursorThresholdValueTextView;
+
+  @NonNull
   public final TextView detailsTextView;
 
   @NonNull
@@ -49,13 +58,17 @@ public final class SettingsBinding implements ViewBinding {
   public final TextView verticalValueTextView;
 
   private SettingsBinding(@NonNull MaterialCardView rootView,
-      @NonNull MaterialButton calibrationButton, @NonNull TextView detailsTextView,
-      @NonNull TextView horizontalLabelTextView, @NonNull Slider horizontalSensitivitySlider,
-      @NonNull TextView horizontalValueTextView, @NonNull TextView statusTextView,
-      @NonNull TextView verticalLabelTextView, @NonNull Slider verticalSensitivitySlider,
-      @NonNull TextView verticalValueTextView) {
+      @NonNull MaterialButton calibrationButton, @NonNull TextView cursorThresholdLabelTextView,
+      @NonNull Slider cursorThresholdSlider, @NonNull TextView cursorThresholdValueTextView,
+      @NonNull TextView detailsTextView, @NonNull TextView horizontalLabelTextView,
+      @NonNull Slider horizontalSensitivitySlider, @NonNull TextView horizontalValueTextView,
+      @NonNull TextView statusTextView, @NonNull TextView verticalLabelTextView,
+      @NonNull Slider verticalSensitivitySlider, @NonNull TextView verticalValueTextView) {
     this.rootView = rootView;
     this.calibrationButton = calibrationButton;
+    this.cursorThresholdLabelTextView = cursorThresholdLabelTextView;
+    this.cursorThresholdSlider = cursorThresholdSlider;
+    this.cursorThresholdValueTextView = cursorThresholdValueTextView;
     this.detailsTextView = detailsTextView;
     this.horizontalLabelTextView = horizontalLabelTextView;
     this.horizontalSensitivitySlider = horizontalSensitivitySlider;
@@ -96,6 +109,24 @@ public final class SettingsBinding implements ViewBinding {
       id = R.id.calibrationButton;
       MaterialButton calibrationButton = ViewBindings.findChildViewById(rootView, id);
       if (calibrationButton == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdLabelTextView;
+      TextView cursorThresholdLabelTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdLabelTextView == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdSlider;
+      Slider cursorThresholdSlider = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdSlider == null) {
+        break missingId;
+      }
+
+      id = R.id.cursorThresholdValueTextView;
+      TextView cursorThresholdValueTextView = ViewBindings.findChildViewById(rootView, id);
+      if (cursorThresholdValueTextView == null) {
         break missingId;
       }
 
@@ -147,9 +178,11 @@ public final class SettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      return new SettingsBinding((MaterialCardView) rootView, calibrationButton, detailsTextView,
-          horizontalLabelTextView, horizontalSensitivitySlider, horizontalValueTextView,
-          statusTextView, verticalLabelTextView, verticalSensitivitySlider, verticalValueTextView);
+      return new SettingsBinding((MaterialCardView) rootView, calibrationButton,
+          cursorThresholdLabelTextView, cursorThresholdSlider, cursorThresholdValueTextView,
+          detailsTextView, horizontalLabelTextView, horizontalSensitivitySlider,
+          horizontalValueTextView, statusTextView, verticalLabelTextView, verticalSensitivitySlider,
+          verticalValueTextView);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

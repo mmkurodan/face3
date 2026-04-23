@@ -39,17 +39,28 @@ class CursorOverlayView @JvmOverloads constructor(
 
     private var normalizedX = 0f
     private var normalizedY = 0f
+    private var cursorMovementThresholdRatio = 0.15f
+    private var isCursorActive = false
 
-    fun setCursorOffsetNormalized(x: Float, y: Float) {
+    fun setCursorMovementThreshold(ratio: Float) {
+        cursorMovementThresholdRatio = ratio.coerceIn(0.05f, 0.5f)
+    }
+
+    fun setCursorOffsetNormalized(x: Float, y: Float, calibrationDistance: Float = 0f) {
         val clampedX = x.coerceIn(-1f, 1f)
         val clampedY = y.coerceIn(-1f, 1f)
-        if (abs(clampedX - normalizedX) < 0.001f && abs(clampedY - normalizedY) < 0.001f) {
-            return
-        }
 
-        normalizedX = clampedX
-        normalizedY = clampedY
-        postInvalidateOnAnimation()
+        val wasActive = isCursorActive
+        isCursorActive = calibrationDistance > cursorMovementThresholdRatio
+
+        if (isCursorActive && (abs(clampedX - normalizedX) >= 0.001f || abs(clampedY - normalizedY) >= 0.001f)) {
+            normalizedX = clampedX
+            normalizedY = clampedY
+            postInvalidateOnAnimation()
+        } else if (!isCursorActive && wasActive) {
+            // Cursor stopped
+            postInvalidateOnAnimation()
+        }
     }
 
     fun centerCursor() {

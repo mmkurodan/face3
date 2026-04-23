@@ -61,6 +61,18 @@ class GazeEstimator {
             smoothedY += (targetY - smoothedY) * SMOOTHING_ALPHA
         }
 
+        val currentIrisCenter = samples.map { it.eye.irisCenter }.let { iris ->
+            val meanX = iris.sumOf { it.x.toDouble() } / iris.size
+            val meanY = iris.sumOf { it.y.toDouble() } / iris.size
+            val meanZ = iris.sumOf { it.z.toDouble() } / iris.size
+            FaceMeshProcessor.Point3(
+                x = meanX.toFloat(),
+                y = meanY.toFloat(),
+                z = meanZ.toFloat(),
+            )
+        }
+        val calibrationDistance = calibrationManager.compute3DDistanceFromCalibration(currentIrisCenter)
+
         return GazeEstimate(
             trackingMode = trackingModeFor(samples),
             offsetX = smoothedX,
@@ -68,6 +80,7 @@ class GazeEstimator {
             distanceScale = samples.map { it.correction.distanceScale }.average().toFloat(),
             poseYawDelta = samples.map { it.correction.yawDelta }.average().toFloat(),
             posePitchDelta = samples.map { it.correction.pitchDelta }.average().toFloat(),
+            calibrationDistance = calibrationDistance,
         )
     }
 
@@ -78,6 +91,7 @@ class GazeEstimator {
         val distanceScale: Float,
         val poseYawDelta: Float,
         val posePitchDelta: Float,
+        val calibrationDistance: Float,
     )
 
     enum class TrackingMode(

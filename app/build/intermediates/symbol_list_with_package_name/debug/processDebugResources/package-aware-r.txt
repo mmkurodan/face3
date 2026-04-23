@@ -3255,6 +3255,9 @@ id counterclockwise
 id cradle
 id currentState
 id cursorOverlayView
+id cursorThresholdLabelTextView
+id cursorThresholdSlider
+id cursorThresholdValueTextView
 id custom
 id customPanel
 id cut
@@ -3883,6 +3886,7 @@ string character_counter_content_description
 string character_counter_overflowed_content_description
 string character_counter_pattern
 string clear_text_end_icon_content_description
+string cursor_threshold_label
 string details_calibration_help
 string details_keep_pose
 string details_permission_help

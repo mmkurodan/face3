@@ -15,6 +15,12 @@ import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.sqrt
 
+fun FaceMeshProcessor.Point3.minus3D(other: FaceMeshProcessor.Point3): FaceMeshProcessor.Point3 =
+    FaceMeshProcessor.Point3(x - other.x, y - other.y, z - other.z)
+
+fun FaceMeshProcessor.Point3.magnitude3D(): Float =
+    sqrt((x * x) + (y * y) + (z * z))
+
 class FaceMeshProcessor(
     context: Context,
     private val listener: Listener,

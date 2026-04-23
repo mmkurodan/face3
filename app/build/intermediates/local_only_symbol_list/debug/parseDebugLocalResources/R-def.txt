@@ -10,6 +10,9 @@ color panel_text_primary
 color panel_text_secondary
 id calibrationButton
 id cursorOverlayView
+id cursorThresholdLabelTextView
+id cursorThresholdSlider
+id cursorThresholdValueTextView
 id detailsTextView
 id faceMarkerOverlayView
 id horizontalLabelTextView
@@ -26,6 +29,7 @@ layout activity_main
 layout settings
 string app_name
 string calibration_button
+string cursor_threshold_label
 string details_calibration_help
 string details_keep_pose
 string details_permission_help

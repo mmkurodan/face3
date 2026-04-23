@@ -83,6 +83,10 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         binding.settingsPanel.verticalSensitivitySlider.addOnChangeListener { _, _, _ ->
             updateSensitivityLabels()
         }
+        binding.settingsPanel.cursorThresholdSlider.addOnChangeListener { _, value, _ ->
+            binding.cursorOverlayView.setCursorMovementThreshold(value)
+            updateSensitivityLabels()
+        }
         updateSensitivityLabels()
 
         if (hasCameraPermission()) {
@@ -148,6 +152,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                 binding.cursorOverlayView.setCursorOffsetNormalized(
                     x = estimate.offsetX,
                     y = estimate.offsetY,
+                    calibrationDistance = estimate.calibrationDistance,
                 )
                 updateStatus(
                     status = getString(R.string.status_tracking, estimate.trackingMode.label),
@@ -349,6 +354,11 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
         binding.settingsPanel.verticalValueTextView.text = getString(
             R.string.sensitivity_value,
             binding.settingsPanel.verticalSensitivitySlider.value,
+        )
+        binding.settingsPanel.cursorThresholdValueTextView.text = String.format(
+            Locale.US,
+            "%.2f",
+            binding.settingsPanel.cursorThresholdSlider.value,
         )
     }
 

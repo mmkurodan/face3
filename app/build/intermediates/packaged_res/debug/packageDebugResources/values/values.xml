@@ -10,10 +10,11 @@
     <color name="panel_text_secondary">#FFD1D5DB</color>
     <string name="app_name">Gaze Cursor</string>
     <string name="calibration_button">キャリブレーション開始</string>
+    <string name="cursor_threshold_label">カーソル動き出す比率</string>
     <string name="details_calibration_help">正面を見た状態でキャリブレーションすると、目幅・鼻先との相対位置・顔角度・距離基準を保存します。</string>
     <string name="details_keep_pose">顔の向きと距離の補正を安定させるため、キャリブレーション時の姿勢に近い状態から始めてください。</string>
     <string name="details_permission_help">カメラ権限を許可すると、CameraX プレビューと FaceMesh による視線推定を開始します。</string>
-    <string name="details_waiting">両目が見えているときは平均し、片目しか見えないときは見えている目で追従します。</string>
+    <string name="details_waiting">両目が見えているときは平均し、片目しか見えないときは見えている目で追従します。カーソル動き出す比率を調整して、瞳の移動に対するカーソルの反応感度を制御できます。</string>
     <string name="grant_camera_permission">カメラ権限を許可</string>
     <string name="horizontal_sensitivity_label">横方向感度</string>
     <string name="open_app_settings">アプリ設定を開く</string>
