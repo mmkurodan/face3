@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
     private var cameraProvider: ProcessCameraProvider? = null
     private var imageAnalysis: ImageAnalysis? = null
     private var hasRequestedPermission = false
+    private var isBlinkCalibrationActive = false
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -203,6 +204,26 @@ class MainActivity : AppCompatActivity(), FaceMeshProcessor.Listener {
                 details = getString(R.string.details_calibration_help),
             )
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onBlinkDetected() {
+        runOnUiThread {
+            isBlinkCalibrationActive = true
+            binding.cursorOverlayView.lockCursor()
+            updateStatus(
+                status = "まばたき検出 - キャリブレーション待機中",
+                details = "瞳を開くと現在地でキャリブレーション再実施します",
+            )
+        }
+    }
+
+    override fun onBlinkReleased() {
+        runOnUiThread {
+            if (isBlinkCalibrationActive) {
+                isBlinkCalibrationActive = false
+                calibrateFromLatestFrame()
+            }
         }
     }
 

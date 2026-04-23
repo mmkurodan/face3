@@ -37,6 +37,8 @@ class FaceMeshProcessor(
     private var lastFrameDisplayWidth = 1
     private var lastFrameDisplayHeight = 1
     private var lastFrameRotationDegrees = 0
+    private var blinkStartTimeMs = 0L
+    private var isBlinkDetected = false
 
     init {
         val options = FaceLandmarker.FaceLandmarkerOptions.builder()
@@ -119,6 +121,8 @@ class FaceMeshProcessor(
         val landmarks = result.faceLandmarks().firstOrNull()
         if (landmarks.isNullOrEmpty()) {
             listener.onNoFaceDetected()
+            blinkStartTimeMs = 0L
+            isBlinkDetected = false
             return
         }
 
@@ -128,15 +132,40 @@ class FaceMeshProcessor(
         )
         if (frame == null) {
             listener.onNoFaceDetected()
+            blinkStartTimeMs = 0L
+            isBlinkDetected = false
             return
         }
 
+        updateBlinkState(frame)
         listener.onFaceFrame(frame)
     }
 
     private fun onError(error: RuntimeException) {
         isProcessing.set(false)
         listener.onError(error.message ?: "MediaPipe Face Landmarker reported an error.")
+        blinkStartTimeMs = 0L
+        isBlinkDetected = false
+    }
+
+    private fun updateBlinkState(frame: FaceMeshFrame) {
+        val currentTimeMs = SystemClock.uptimeMillis()
+        val isClosed = frame.isBothEyesClosed()
+
+        if (isClosed) {
+            if (blinkStartTimeMs == 0L) {
+                blinkStartTimeMs = currentTimeMs
+            } else if (!isBlinkDetected && (currentTimeMs - blinkStartTimeMs) >= BLINK_DURATION_MS) {
+                isBlinkDetected = true
+                listener.onBlinkDetected()
+            }
+        } else {
+            if (isBlinkDetected) {
+                isBlinkDetected = false
+                listener.onBlinkReleased()
+            }
+            blinkStartTimeMs = 0L
+        }
     }
 
     private fun buildFrame(
@@ -306,6 +335,12 @@ class FaceMeshProcessor(
             }
 
         fun visibleEyes(): List<EyeMetrics> = listOfNotNull(rightEye, leftEye)
+
+        fun isBothEyesClosed(): Boolean {
+            val rightClosed = rightEye?.let { it.eyeHeight / it.eyeWidth < BLINK_THRESHOLD } ?: true
+            val leftClosed = leftEye?.let { it.eyeHeight / it.eyeWidth < BLINK_THRESHOLD } ?: true
+            return rightClosed && leftClosed
+        }
     }
 
     enum class EyeSide(
@@ -340,6 +375,8 @@ class FaceMeshProcessor(
         fun onFaceFrame(frame: FaceMeshFrame)
         fun onNoFaceDetected()
         fun onError(message: String)
+        fun onBlinkDetected()
+        fun onBlinkReleased()
     }
 
     private operator fun Point3.minus(other: Point3): Point3 =
@@ -366,6 +403,8 @@ class FaceMeshProcessor(
         private const val MIN_FRAME_INTERVAL_MS = 33L
         private const val EPSILON = 1.0e-6f
         private const val NOSE_TIP_INDEX = 1
+        private const val BLINK_THRESHOLD = 0.26f
+        private const val BLINK_DURATION_MS = 150L
 
         private const val RIGHT_OUTER_CORNER = 33
         private const val RIGHT_INNER_CORNER = 133

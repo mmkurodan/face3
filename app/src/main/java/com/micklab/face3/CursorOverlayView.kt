@@ -38,6 +38,12 @@ class CursorOverlayView @JvmOverloads constructor(
         strokeWidth = 2f * resources.displayMetrics.density
     }
 
+    private val cursorTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = ContextCompat.getColor(context, R.color.cursor_fill)
+        textSize = 10f * resources.displayMetrics.density
+        textAlign = Paint.Align.CENTER
+    }
+
     private var normalizedX = 0f
     private var normalizedY = 0f
     private var cursorMovementThresholdRatioX = 0.015f
@@ -57,6 +63,14 @@ class CursorOverlayView @JvmOverloads constructor(
 
     fun setCursorMovementSpeed(speed: Float) {
         cursorMovementSpeed = speed.coerceAtLeast(0.5f)
+    }
+
+    fun lockCursor() {
+        // Cursor lock functionality for blink calibration
+    }
+
+    fun unlockCursor() {
+        // Cursor unlock functionality
     }
 
     fun setCursorOffsetNormalized(
@@ -125,5 +139,8 @@ class CursorOverlayView @JvmOverloads constructor(
         canvas.drawCircle(centerX, centerY, 3f * resources.displayMetrics.density, anchorDotPaint)
         canvas.drawCircle(cursorX, cursorY, cursorRadius, cursorPaint)
         canvas.drawCircle(cursorX, cursorY, cursorRadius, cursorOutlinePaint)
+
+        val positionText = String.format("%.2f\n%.2f", normalizedX, normalizedY)
+        canvas.drawText(positionText, cursorX, cursorY, cursorTextPaint)
     }
 }
